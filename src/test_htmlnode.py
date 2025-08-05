@@ -1,7 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode
-
+from htmlnode import HTMLNode, LeafNode
 
 class TestHTMLNode(unittest.TestCase):
     def test_eq(self):
@@ -36,10 +35,27 @@ class TestHTMLNode(unittest.TestCase):
 
     def test_props_to_html(self):
         node = HTMLNode(props={
-            "href": "https://www.google.com",
+            "href": "https://www.boot.dev",
             "target": "_blank",
         })
-        print(f'\nTest of props_to_html():\n{node.props}\nconverts to\n{node.props_to_html()}')
+        self.assertEqual(node.props_to_html(), ' href="https://www.boot.dev" target="_blank"')
+
+class TestLeafNode(unittest.TestCase):
+    def test_to_html_no_value(self):
+        bad_leaf = LeafNode(None, None)
+        self.assertRaises(ValueError, bad_leaf.to_html)
+
+    def test_to_html_no_tag(self):
+        leaf = LeafNode(None, "example text")
+        self.assertEqual(leaf.to_html(), "example text")
+
+    def test_to_html_yes_tag(self):
+        leaf = LeafNode('p', "example text")
+        self.assertEqual(leaf.to_html(), "<p>example text</p>")
+
+    def test_to_html_tag_and_props(self):
+        leaf = LeafNode('a', "Click me!", {"href": "https://www.boot.dev"})
+        self.assertEqual(leaf.to_html(), '<a href="https://www.boot.dev">Click me!</a>')
 
 if __name__ == "__main__":
     unittest.main()
