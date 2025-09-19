@@ -1,7 +1,44 @@
 import unittest
 
-from inline_markdown import split_nodes_delimiter
+from inline_markdown import extract_markdown_images, extract_markdown_links, split_nodes_delimiter
 from textnode import TextNode, TextType
+
+class TestExtractMarkdownImages(unittest.TestCase):
+    def test_good_images(self):
+        markdown_text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        self.assertEqual(
+            extract_markdown_images(markdown_text),
+            [("rick roll", "https://i.imgur.com/aKaOqIh.gif"), ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")]
+        )
+
+    def test_links_not_caught(self):
+        markdown_text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        self.assertEqual(
+            extract_markdown_images(markdown_text),
+            []
+        )
+        
+class TestExtractMarkdownLinks(unittest.TestCase):
+    def test_good_links(self):
+        markdown_text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        self.assertEqual(
+            extract_markdown_links(markdown_text),
+            [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")]
+        )
+
+    def test_images_not_caught(self):
+        markdown_text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        self.assertEqual(
+            extract_markdown_links(markdown_text),
+            []
+        )
+
+    def test_normal_brackets(self):
+        markdown_text = "This is not a [link]"
+        self.assertEqual(
+            extract_markdown_links(markdown_text),
+            []
+        )
 
 class TestSplitNodesDelimiter(unittest.TestCase):
     def test_bold(self):
