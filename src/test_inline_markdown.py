@@ -1,6 +1,6 @@
 import unittest
 
-from inline_markdown import extract_markdown_images, extract_markdown_links, split_nodes_delimiter, split_nodes_image, split_nodes_link
+from inline_markdown import extract_markdown_images, extract_markdown_links, split_nodes_delimiter, split_nodes_image, split_nodes_link, text_to_textnodes
 from textnode import TextNode, TextType
 
 class TestExtractMarkdownImages(unittest.TestCase):
@@ -131,7 +131,6 @@ class TestSplitNodesImage(unittest.TestCase):
         )
         self.assertEqual(
             [
-                TextNode("", TextType.PLAIN),
                 TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
                 TextNode("This is text that starts with an image and another ", TextType.PLAIN),
                 TextNode("second image", TextType.IMAGE, "https://i.imgur.com/3elNhQu.png"),
@@ -200,7 +199,6 @@ class TestSplitNodesLink(unittest.TestCase):
         )
         self.assertEqual(
             [
-                TextNode("", TextType.PLAIN),
                 TextNode("link", TextType.LINK, "https://i.imgur.com/zjjcJKZ.png"),
                 TextNode("This is text that starts with a link and another ", TextType.PLAIN),
                 TextNode("second link", TextType.LINK, "https://i.imgur.com/3elNhQu.png"),
@@ -244,6 +242,25 @@ class TestSplitNodesLink(unittest.TestCase):
                 TextNode("second link", TextType.LINK, "https://i.imgur.com/3elNhQu.png"),
             ],
             split_nodes_link([node1, node2])
+        )
+
+class TestTextToTextNodes(unittest.TestCase):
+    def test_all_five(self):
+        text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        self.assertEqual(
+            text_to_textnodes(text),
+            [
+                TextNode("This is ", TextType.PLAIN),
+                TextNode("text", TextType.BOLD),
+                TextNode(" with an ", TextType.PLAIN),
+                TextNode("italic", TextType.ITALIC),
+                TextNode(" word and a ", TextType.PLAIN),
+                TextNode("code block", TextType.CODE),
+                TextNode(" and an ", TextType.PLAIN),
+                TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+                TextNode(" and a ", TextType.PLAIN),
+                TextNode("link", TextType.LINK, "https://boot.dev"),
+            ]
         )
 
 if __name__ == "__main__":
